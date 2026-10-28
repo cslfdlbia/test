@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+    <body>
+        <span id="text1" style="color: rgb(152, 39, 39);">빨강</span><br>
+        <label for="input11">Ball1_x : </label><input id="input11" type="number" value="600">&nbsp;&nbsp;
+        <label for="input12">Ball1_y : </label><input id="input12" type="number" value="400">&nbsp;&nbsp;
+        <label for="input13">Ball1_v_x : </label><input id="input13" type="number" value="0.4">&nbsp;&nbsp;
+        <label for="input14">Ball1_v_y : </label><input id="input14" type="number" value="1">&nbsp;&nbsp;
+        <button onclick="nowBall1();">Now</button>
+        <br>
+        <span id="text2" style="color: rgb(19, 19, 148);">파랑</span><br>
+        <label for="input21">Ball2_x : </label><input id="input21" type="number" value="700">&nbsp;&nbsp;
+        <label for="input22">Ball2_y : </label><input id="input22" type="number" value="400">&nbsp;&nbsp;
+        <label for="input23">Ball2_v_x : </label><input id="input23" type="number" value="0.4">&nbsp;&nbsp;
+        <label for="input24">Ball2_v_y : </label><input id="input24" type="number" value="-1">&nbsp;&nbsp;
+        <button onclick="nowBall2();">Now</button>
+        <br>
+        <span id="text3" style="color: rgb(141, 122, 37)">노랑</span><br>
+        <label for="input31">Ball3_x : </label><input id="input31" type="number" value="650">&nbsp;&nbsp;
+        <label for="input32">Ball3_y : </label><input id="input32" type="number" value="313">&nbsp;&nbsp;
+        <label for="input33">Ball3_v_x : </label><input id="input33" type="number" value="-0.8">&nbsp;&nbsp;
+        <label for="input34">Ball3_v_y : </label><input id="input34" type="number" value="0">&nbsp;&nbsp;
+        <button onclick="nowBall3();">Now</button>
+        <br><button onclick="set();">Set</button>
+        <canvas id="canvas" width="2000" height="1000" style="border:3px black solid"></canvas>
+    </body>
+    <script>
+        let c = document.getElementById("canvas")
+        let ctx = c.getContext("2d")
+        let O = [c.width/2, c.height/2]
+        let b1 = O
+        let b2 = [O[0]+100, O[1]]
+        let b3 = [O[0]+50, O[1]-50*Math.sqrt(3)]
+        let v1 = [0.4,1]
+        let v2 = [0.4,-1]
+        let v3 = [-0.8,0]
+        let F0 = 100
+        let cm = [(b1[0]+b2[0]+b3[0])/3,(b1[1]+b2[1]+b3[1])/3]
+        let interval = 1/1000
+        let text1 = document.getElementById('text1')
+        let text2 = document.getElementById('text2')
+        let text3 = document.getElementById('text3')
+
+        function set() {
+            b1[0] = parseFloat(document.getElementById('input11').value)
+            b1[1] = parseFloat(document.getElementById('input12').value)
+            v1[0] = parseFloat(document.getElementById('input13').value)
+            v1[1] = parseFloat(document.getElementById('input14').value)
+            b2[0] = parseFloat(document.getElementById('input21').value)
+            b2[1] = parseFloat(document.getElementById('input22').value)
+            v2[0] = parseFloat(document.getElementById('input23').value)
+            v2[1] = parseFloat(document.getElementById('input24').value)
+            b3[0] = parseFloat(document.getElementById('input31').value)
+            b3[1] = parseFloat(document.getElementById('input32').value)
+            v3[0] = parseFloat(document.getElementById('input33').value)
+            v3[1] = parseFloat(document.getElementById('input34').value)
+        }
+
+        function drawBall1() {
+            ctx.beginPath()
+            ctx.arc(b1[0],b1[1],10,0,2*Math.PI)
+            ctx.stroke()
+            ctx.fillStyle = 'blue';
+            ctx.fill();
+        }
+
+        function drawBall2() {
+            ctx.beginPath()
+            ctx.arc(b2[0],b2[1],10,0,2*Math.PI)
+            ctx.stroke()
+            ctx.fillStyle = 'red';
+            ctx.fill();
+        }
+
+        function drawBall3() {
+            ctx.beginPath()
+            ctx.arc(b3[0],b3[1],10,0,2*Math.PI)
+            ctx.stroke()
+            ctx.fillStyle = 'yellow';
+            ctx.fill();
+        }
+
+        function forceBall1() {
+            diff_x_b12 = b2[0]-b1[0]
+            diff_y_b12 = b2[1]-b1[1]
+            distance_sq_b12 = diff_x_b12**2+diff_y_b12**2
+            angle_b12 = Math.atan2(diff_y_b12, diff_x_b12)
+            F12 = [Math.cos(angle_b12) * F0/distance_sq_b12, Math.sin(angle_b12) * F0/distance_sq_b12]
+            diff_x_b13 = b3[0]-b1[0]
+            diff_y_b13 = b3[1]-b1[1]
+            distance_sq_b13 = diff_x_b13**2+diff_y_b13**2
+            angle_b13 = Math.atan2(diff_y_b13,diff_x_b13)
+            F13 = [Math.cos(angle_b13) * F0/distance_sq_b13, Math.sin(angle_b13) * F0/distance_sq_b13]
+            v1[0] += F12[0]+F13[0]
+            v1[1] += F12[1]+F13[1]
+            console.log(F12,F13)
+        }
+        function forceBall2() {
+            diff_x_b21 = b1[0]-b2[0]
+            diff_y_b21 = b1[1]-b2[1]
+            distance_sq_b21 = diff_x_b21**2+diff_y_b21**2
+            angle_b21 = Math.atan2(diff_y_b21,diff_x_b21)
+            F21 = [Math.cos(angle_b21) * F0/distance_sq_b21, Math.sin(angle_b21) * F0/distance_sq_b21]
+            diff_x_b23 = b3[0]-b2[0]
+            diff_y_b23 = b3[1]-b2[1]
+            distance_sq_b23 = diff_x_b23**2+diff_y_b23**2
+            angle_b23 = Math.atan2(diff_y_b23,diff_x_b23)
+            F23 = [Math.cos(angle_b23) * F0/distance_sq_b23, Math.sin(angle_b23) * F0/distance_sq_b23]
+            v2[0] += F21[0]+F23[0]
+            v2[1] += F21[1]+F23[1]
+        }
+
+        function forceBall3() {
+            diff_x_b31 = b1[0]-b3[0]
+            diff_y_b31 = b1[1]-b3[1]
+            distance_sq_b31 = diff_x_b31**2+diff_y_b31**2
+            angle_b31 = Math.atan2(diff_y_b31,diff_x_b31)
+            F31 = [Math.cos(angle_b31) * F0/distance_sq_b31, Math.sin(angle_b31) * F0/distance_sq_b31]
+            diff_x_b32 = b2[0]-b3[0]
+            diff_y_b32 = b2[1]-b3[1]
+            distance_sq_b32 = diff_x_b32**2+diff_y_b32**2
+            angle_b32 = Math.atan2(diff_y_b32,diff_x_b32)
+            F32 = [Math.cos(angle_b32) * F0/distance_sq_b32, Math.sin(angle_b32) * F0/distance_sq_b32]
+            v3[0] += F31[0]+F32[0]
+            v3[1] += F31[1]+F32[1]
+        }
+        
+        function nowBall1() {
+            document.getElementById('input11').value = b1[0]
+            document.getElementById('input12').value = b1[1]
+            document.getElementById('input13').value = v1[0]
+            document.getElementById('input14').value = v1[1]
+        }
+
+        function nowBall2() {
+            document.getElementById('input21').value = b2[0]
+            document.getElementById('input22').value = b2[1]
+            document.getElementById('input23').value = v2[0]
+            document.getElementById('input24').value = v2[1]
+        }
+
+        function nowBall3() {
+            document.getElementById('input31').value = b3[0]
+            document.getElementById('input32').value = b3[1]
+            document.getElementById('input33').value = v3[0]
+            document.getElementById('input34').value = v3[1]
+        }
+
+        var intervalId = setInterval(() => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            drawBall1()
+            drawBall2()
+            drawBall3()
+            forceBall1()
+            forceBall2()
+            forceBall3()
+            b1[0] += v1[0]
+            b1[1] += v1[1]
+            b2[0] += v2[0]
+            b2[1] += v2[1]
+            b3[0] += v3[0]
+            b3[1] += v3[1]
+            cm = [(b1[0]+b2[0]+b3[0])/3,(b1[1]+b2[1]+b3[1])/3]
+            ctx.beginPath()
+            ctx.arc(cm[0],cm[1],5,0,2*Math.PI)
+            ctx.stroke()
+            ctx.fillStyle = 'black';
+            ctx.fill();
+        }, 1000*(interval))
+
+        var intervalId2 = setInterval(() => {
+            text1.textContent = `Red - x, y = ${b1[0].toFixed(3)}, ${b1[1].toFixed(3)}, v = ${v1[0].toFixed(3)}, ${v1[1].toFixed(3)}`
+            text2.textContent = `Blue - x, y = ${b2[0].toFixed(3)}, ${b2[1].toFixed(3)}, v = ${v2[0].toFixed(3)}, ${v2[1].toFixed(3)}`
+            text3.textContent = `Yellow - x, y = ${b3[0].toFixed(3)}, ${b3[1].toFixed(3)}, v = ${v3[0].toFixed(3)}, ${v3[1].toFixed(3)}`
+        }, 100)
+    </script>
+</html>
